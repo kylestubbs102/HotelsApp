@@ -27,7 +27,7 @@ data class AppSearchCardContent(
     @SerializedName("labels")
     val labels: List<Label>,
     @SerializedName("primaryInfo")
-    val primaryInfo: PrimaryInfo,
+    val primaryInfo: PrimaryInfo?,
     @SerializedName("saveId")
     val saveId: SaveId?,
     @SerializedName("secondaryInfo")

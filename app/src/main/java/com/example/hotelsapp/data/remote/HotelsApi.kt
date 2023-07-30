@@ -60,4 +60,8 @@ interface HotelsApi {
         @QueryMap queryMap: Map<String, String>,
         @Body body: GetHotelOffersRequest
     ): GetHotelOffersResponse
+
+    companion object {
+        const val HOTELS_BASE_URL = "https://travel-advisor.p.rapidapi.com/"
+    }
 }
