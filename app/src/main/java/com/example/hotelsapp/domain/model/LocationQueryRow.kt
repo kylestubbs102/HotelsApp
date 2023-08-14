@@ -9,5 +9,9 @@ data class LocationQueryRow(
     /**
      * Check if the values are a valid response from the service
      */
-    fun isValid(): Boolean = location.isNotBlank() || city.isNotBlank() || geoId > 0
+    fun isValid(): Boolean = location.isNotBlank() && city.isNotBlank() && geoId > 0
+
+    override fun toString(): String {
+        return "$location, $city"
+    }
 }

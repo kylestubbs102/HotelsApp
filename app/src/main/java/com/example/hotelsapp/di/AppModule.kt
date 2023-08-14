@@ -2,6 +2,7 @@ package com.example.hotelsapp.di
 
 import android.app.Application
 import androidx.room.Room
+import com.example.hotelsapp.BuildConfig
 import com.example.hotelsapp.data.local.HotelsDao
 import com.example.hotelsapp.data.local.HotelsDatabase
 import com.example.hotelsapp.data.remote.AuthInterceptor
@@ -15,6 +16,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -25,12 +27,22 @@ import retrofit2.converter.gson.GsonConverterFactory
 @InstallIn(SingletonComponent::class)
 class AppModule {
 
+    companion object {
+        private const val TIMEOUT_SECONDS = 200L
+        private const val TIMEOUT_SECONDS_DEBUG = 200L
+    }
+
     @Provides
     @Singleton
     fun provideHotelsApi(): HotelsApi {
+        val timeout = if (BuildConfig.DEBUG) TIMEOUT_SECONDS_DEBUG else TIMEOUT_SECONDS
+
         val okHttpClient = OkHttpClient.Builder()
+            .connectTimeout(timeout, TimeUnit.SECONDS)
+            .readTimeout(timeout, TimeUnit.SECONDS)
+            .writeTimeout(timeout, TimeUnit.SECONDS)
             .addInterceptor(AuthInterceptor())
-            .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
+            .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
             .build()
 
         return Retrofit.Builder()

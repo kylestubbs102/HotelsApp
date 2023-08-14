@@ -3,15 +3,8 @@ package com.example.hotelsapp.data.local.mapper
 import com.example.hotelsapp.data.local.entity.LocationQueryEntity
 import com.example.hotelsapp.data.remote.dto.responses.search.SearchLocationsResponse
 import com.example.hotelsapp.data.remote.dto.responses.search.Section
-import com.example.hotelsapp.domain.model.LocationQuery
 import com.example.hotelsapp.domain.model.LocationQueryRow
 import org.json.JSONObject
-
-fun LocationQueryEntity.toLocationQuery(): LocationQuery =
-    LocationQuery(
-        query = this.query,
-        hotelQueryList = this.hotelQueryList
-    )
 
 fun SearchLocationsResponse.toLocationQueryEntity(query: String): LocationQueryEntity {
     val hotelQueryRows = this.data.appPresentationQueryAppSearch.sections.map {

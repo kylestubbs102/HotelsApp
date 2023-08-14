@@ -43,19 +43,19 @@ interface HotelsApi {
         @Body body: ListHotelFiltersRequest
     ): ListHotelFiltersResponse
 
-    @POST("hotel/v2/list")
+    @POST("hotels/v2/list")
     suspend fun listHotels(
         @QueryMap queryMap: Map<String, String>,
         @Body body: ListHotelsRequest
     ): ListHotelsResponse
 
-    @POST("hotel/v2/get-details")
+    @POST("hotels/v2/get-details")
     suspend fun getHotelDetails(
         @QueryMap queryMap: Map<String, String>,
         @Body body: GetHotelDetailsRequest
     ): GetHotelDetailsResponse
 
-    @POST("hotel/v2/get-offers")
+    @POST("hotels/v2/get-offers")
     suspend fun getHotelOffers(
         @QueryMap queryMap: Map<String, String>,
         @Body body: GetHotelOffersRequest

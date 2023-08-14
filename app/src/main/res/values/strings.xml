@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">HotelsApp</string>
+
+    <string name="location_icon_content_description">Location</string>
 </resources>
