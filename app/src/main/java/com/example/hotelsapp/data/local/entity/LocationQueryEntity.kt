@@ -2,13 +2,14 @@ package com.example.hotelsapp.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.PrimaryKey
-import com.example.hotelsapp.domain.model.LocationQueryRow
 
-@Entity
+@Entity(primaryKeys = ["query", "geoId"])
 data class LocationQueryEntity(
-    @PrimaryKey @ColumnInfo(name = "query") val query: String,
-    @ColumnInfo(name = "hotelQueryList") val hotelQueryList: List<LocationQueryRow>,
+    @ColumnInfo(name = "query") val query: String,
+    @ColumnInfo(name = "geoId") val geoId: Int,
+    @ColumnInfo(name = "index") val index: Int,
+    @ColumnInfo(name = "location") val location: String,
+    @ColumnInfo(name = "city") val city: String,
 )
 
 // potentially add more fields when adding filters

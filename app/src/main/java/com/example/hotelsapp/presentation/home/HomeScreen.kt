@@ -123,7 +123,7 @@ fun HomeScreen(
                     onClick = {
                         // TODO : animate form up and only show name and check in/out dates
                         //  Also, display the list of hotels found
-                        currentQuerySelection?.geoId?.let { viewModel.searchHotelsList(it) }
+                        currentQuerySelection?.geoId?.let { viewModel.searchHotelsList(it, true) }
                         hotelListScreenVisible = true
                         focusManager.clearFocus()
                     },

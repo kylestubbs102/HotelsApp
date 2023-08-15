@@ -66,11 +66,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun searchHotelsList(geoId: Int) {
+    fun searchHotelsList(
+        geoId: Int,
+        isInitialFetch: Boolean
+    ) {
         searchHotelsListJob?.cancel()
         searchHotelsListJob = viewModelScope.launch(Dispatchers.IO) {
             hotelsRepository
-                .getHotelsList(geoId, updateToken)
+                .getHotelsList(geoId, updateToken, isInitialFetch)
                 .collectLatest {
                     when (it) {
                         is Resource.Loading -> {
@@ -80,9 +83,10 @@ class HomeViewModel @Inject constructor(
                         }
                         is Resource.Success -> {
                             hotelListMutableState.value = HomeHotelListState(
-                                hotelRows = it.data?.hotelRows ?: emptyList(),
+                                hotelRows = it.data ?: emptyList(),
                             )
-                            updateToken = it.data?.updateToken ?: ""
+                            // Fetch update token from last item to page for next items
+                            updateToken = it.data?.last()?.updateToken ?: ""
                         }
                         is Resource.Error -> {
                             hotelListMutableState.value = HomeHotelListState(

@@ -1,13 +1,14 @@
 package com.example.hotelsapp.data.repository
 
 import com.example.hotelsapp.data.local.HotelsDao
-import com.example.hotelsapp.data.local.mapper.toHotelList
-import com.example.hotelsapp.data.local.mapper.toHotelListEntity
-import com.example.hotelsapp.data.local.mapper.toLocationQueryEntity
+import com.example.hotelsapp.data.local.mapper.toHotelRowEntityList
+import com.example.hotelsapp.data.local.mapper.toHotelRowList
+import com.example.hotelsapp.data.local.mapper.toLocationQueryEntityList
+import com.example.hotelsapp.data.local.mapper.toLocationQueryRowList
 import com.example.hotelsapp.data.remote.HotelsCalls
 import com.example.hotelsapp.data.remote.dto.requests.listhotels.ListHotelsRequest
 import com.example.hotelsapp.data.remote.dto.requests.search.SearchLocationsRequest
-import com.example.hotelsapp.domain.model.HotelList
+import com.example.hotelsapp.domain.model.HotelRow
 import com.example.hotelsapp.domain.model.LocationQueryRow
 import com.example.hotelsapp.domain.repository.HotelsRepository
 import com.example.hotelsapp.util.Resource
@@ -26,7 +27,8 @@ class HotelsRepositoryImpl(
             emit(Resource.Loading())
             // query db and check if present
             if (dao.doesQueryExist(query)) {
-                emit(Resource.Success(dao.getLocationQuery(query).hotelQueryList))
+                emit(Resource.Success(dao.getLocationQueryList(query).toLocationQueryRowList()))
+                return@flow
             }
 
             // Fetch from server
@@ -35,11 +37,11 @@ class HotelsRepositoryImpl(
                 val searchLocationsResponse = apiCalls.searchLocations(searchLocationsRequest)
 
                 // Map to db entity
-                val entity = searchLocationsResponse.toLocationQueryEntity(query)
+                val entityList = searchLocationsResponse.toLocationQueryEntityList(query)
 
                 // put and return from db
-                dao.insertLocationQuery(entity)
-                emit(Resource.Success(dao.getLocationQuery(query).hotelQueryList))
+                dao.insertLocationQueryList(entityList)
+                emit(Resource.Success(dao.getLocationQueryList(query).toLocationQueryRowList()))
             } catch (e: HttpException) {
                 emit(Resource.Error("Failed due to HttpException: ${e.message}"))
             } catch (e: IOException) {
@@ -47,12 +49,17 @@ class HotelsRepositoryImpl(
             }
         }
 
-    override suspend fun getHotelsList(geoId: Int, updateToken: String): Flow<Resource<HotelList>> =
+    override suspend fun getHotelsList(
+        geoId: Int,
+        updateToken: String,
+        isInitialFetch: Boolean
+    ): Flow<Resource<List<HotelRow>>> =
         flow {
             emit(Resource.Loading())
-            // query db and check if present
-            if (dao.doesHotelsListExist(geoId)) {
-                emit(Resource.Success(dao.getHotelList(geoId).toHotelList()))
+            // If initial fetch, check if data is present and return if present.
+            if (isInitialFetch && dao.doesHotelsListExist(geoId)) {
+                emit(Resource.Success(dao.getHotelRowList(geoId).toHotelRowList()))
+                return@flow
             }
 
             // Fetch from server
@@ -61,15 +68,18 @@ class HotelsRepositoryImpl(
                 val listHotelsResponse = apiCalls.listHotels(listHotelsRequest)
 
                 // Map to db entity
-                val entity = listHotelsResponse.toHotelListEntity(geoId)
+                val entity = listHotelsResponse.toHotelRowEntityList(geoId)
+                val newUpdateToken = entity.first().updateToken
 
                 // put and return from db
-                dao.insertHotelList(entity)
-                emit(Resource.Success(dao.getHotelList(geoId, entity.updateToken).toHotelList()))
+                dao.insertHotelRowList(entity)
+                emit(Resource.Success(dao.getHotelRowList(geoId, newUpdateToken).toHotelRowList()))
             } catch (e: HttpException) {
                 emit(Resource.Error("Failed due to HttpException: ${e.message}"))
             } catch (e: IOException) {
                 emit(Resource.Error("Failed due to IOException: ${e.message}"))
+            } catch (e: NoSuchElementException) {
+                emit(Resource.Error("Failed due to NoSuchElementException ${e.message}"))
             }
         }
 }

@@ -4,32 +4,32 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.hotelsapp.data.local.entity.HotelListEntity
+import com.example.hotelsapp.data.local.entity.HotelRowEntity
 import com.example.hotelsapp.data.local.entity.LocationQueryEntity
 
 @Dao
 interface HotelsDao {
 
     // Query results
-    @Query("SELECT * FROM locationqueryentity WHERE `query` = :query")
-    suspend fun getLocationQuery(query: String): LocationQueryEntity
+    @Query("SELECT * FROM locationqueryentity WHERE `query` = :query ORDER BY `index`")
+    suspend fun getLocationQueryList(query: String): List<LocationQueryEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertLocationQuery(locationQueryEntity: LocationQueryEntity)
+    suspend fun insertLocationQueryList(locationQueryEntityList: List<LocationQueryEntity>)
 
     @Query("SELECT EXISTS(SELECT * FROM locationqueryentity WHERE `query` = :query)")
     suspend fun doesQueryExist(query: String): Boolean
 
     // Hotels list results
-    @Query("SELECT * FROM hotellistentity WHERE geoId = :geoId")
-    suspend fun getHotelList(geoId: Int): HotelListEntity
+    @Query("SELECT * FROM hotelrowentity WHERE geoId = :geoId ORDER BY lastModified")
+    suspend fun getHotelRowList(geoId: Int): List<HotelRowEntity>
 
-    @Query("SELECT * FROM hotellistentity WHERE geoId = :geoId AND updateToken = :updateToken")
-    suspend fun getHotelList(geoId: Int, updateToken: String): HotelListEntity
+    @Query("SELECT * FROM hotelrowentity WHERE geoId = :geoId AND updateToken = :updateToken ORDER BY lastModified")
+    suspend fun getHotelRowList(geoId: Int, updateToken: String): List<HotelRowEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertHotelList(hotelList: HotelListEntity)
+    suspend fun insertHotelRowList(hotelRowList: List<HotelRowEntity>)
 
-    @Query("SELECT EXISTS(SELECT * FROM hotellistentity WHERE geoId = :geoId)")
+    @Query("SELECT EXISTS(SELECT * FROM hotelrowentity WHERE geoId = :geoId)")
     suspend fun doesHotelsListExist(geoId: Int): Boolean
 }

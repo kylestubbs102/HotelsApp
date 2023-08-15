@@ -6,20 +6,25 @@ import com.example.hotelsapp.data.remote.dto.responses.search.Section
 import com.example.hotelsapp.domain.model.LocationQueryRow
 import org.json.JSONObject
 
-fun SearchLocationsResponse.toLocationQueryEntity(query: String): LocationQueryEntity {
-    val hotelQueryRows = this.data.appPresentationQueryAppSearch.sections.map {
-        LocationQueryRow(
+fun SearchLocationsResponse.toLocationQueryEntityList(query: String): List<LocationQueryEntity> =
+    this.data.appPresentationQueryAppSearch.sections.mapIndexed { idx, it ->
+        LocationQueryEntity(
+            query = query,
             location = it.appSearchCardContent?.cardTitle?.string ?: "",
+            index = idx,
             city = getCity(it) ?: "",
-            geoId = getGeoId(it) ?: -1
+            geoId = getGeoId(it) ?: -1,
+        )
+    }
+
+fun List<LocationQueryEntity>.toLocationQueryRowList(): List<LocationQueryRow> =
+    this.map {
+        LocationQueryRow(
+            geoId = it.geoId,
+            location = it.location,
+            city = it.city,
         )
     }.filter { it.isValid() }
-
-    return LocationQueryEntity(
-        query = query,
-        hotelQueryList = hotelQueryRows
-    )
-}
 
 private fun getCity(section: Section): String? =
     section.appSearchCardContent?.let {

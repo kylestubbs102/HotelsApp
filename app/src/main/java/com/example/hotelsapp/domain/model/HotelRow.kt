@@ -1,10 +1,11 @@
 package com.example.hotelsapp.domain.model
 
-data class HotelListRow(
+data class HotelRow(
     val hotel: String,
     val contentId: Int,
     val latitude: Double,
     val longitude: Double,
+    val updateToken: String,
     val rating: Double? = null,
     val numberOfReviews: String? = null,
     val photoUrl: String? = null,

@@ -30,7 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.GlideLazyListPreloader
-import com.example.hotelsapp.domain.model.HotelListRow
+import com.example.hotelsapp.domain.model.HotelRow
 import com.example.hotelsapp.presentation.navigation.NavRoute
 import com.example.hotelsapp.util.ImageUtil
 
@@ -88,7 +88,7 @@ fun HotelResultsLazyColumn(
 @Composable
 fun HotelDisplayRow(
     navController: NavController = rememberNavController(),
-    hotelRow: HotelListRow,
+    hotelRow: HotelRow,
 ) {
     Row(
         modifier = Modifier

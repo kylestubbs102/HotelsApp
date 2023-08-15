@@ -1,25 +1,31 @@
 package com.example.hotelsapp.data.local.mapper
 
-import android.util.Log
-import com.example.hotelsapp.data.local.entity.HotelListEntity
+import com.example.hotelsapp.data.local.entity.HotelRowEntity
 import com.example.hotelsapp.data.remote.dto.responses.listhotels.AppPresentationQueryAppV2
 import com.example.hotelsapp.data.remote.dto.responses.listhotels.BubbleRating
 import com.example.hotelsapp.data.remote.dto.responses.listhotels.GeoPoint
 import com.example.hotelsapp.data.remote.dto.responses.listhotels.ListHotelsResponse
 import com.example.hotelsapp.data.remote.dto.responses.listhotels.MapSection
-import com.example.hotelsapp.domain.model.HotelList
-import com.example.hotelsapp.domain.model.HotelListRow
+import com.example.hotelsapp.domain.model.HotelRow
 import org.json.JSONObject
 
-fun HotelListEntity.toHotelList(): HotelList =
-    HotelList(
-        hotelRows = hotelRowsList,
-        updateToken = updateToken,
-    )
+fun List<HotelRowEntity>.toHotelRowList(): List<HotelRow> =
+    this.map {
+        HotelRow(
+            hotel = it.hotel,
+            contentId = it.contentId,
+            latitude = it.latitude,
+            longitude = it.longitude,
+            updateToken = it.updateToken,
+            rating = it.rating,
+            numberOfReviews = it.numberOfReviews,
+            photoUrl = it.photoUrl,
+        )
+    }
 
-fun ListHotelsResponse.toHotelListEntity(geoId: Int): HotelListEntity {
+fun ListHotelsResponse.toHotelRowEntityList(geoId: Int): List<HotelRowEntity> {
 
-    val hotelRowsList = this.data.appPresentationQueryAppListV2[0].let {
+    this.data.appPresentationQueryAppListV2[0].let {
 
         val titlesList = getTitlesList(it.mapSections)
         val contentIdList = getContentIdList(it.mapSections)
@@ -27,28 +33,25 @@ fun ListHotelsResponse.toHotelListEntity(geoId: Int): HotelListEntity {
         val ratingList = getRatingList(it.mapSections)
         val photoUrlList = getPhotoUrlList(it) ?: List(titlesList.size) { null }
 
-        val list = mutableListOf<HotelListRow>()
+        val hotelRowEntityList = mutableListOf<HotelRowEntity>()
         for (i in titlesList.indices) {
-            list.add(
-                HotelListRow(
-                    hotel = titlesList[i],
+            hotelRowEntityList.add(
+                HotelRowEntity(
                     contentId = contentIdList[i],
+                    geoId = geoId,
+                    hotel = titlesList[i],
                     longitude = geoPointList[i].longitude,
                     latitude = geoPointList[i].latitude,
+                    updateToken = getUpdateToken(this),
                     rating = ratingList[i]?.rating,
                     numberOfReviews = ratingList[i]?.numberReviews?.string,
                     photoUrl = photoUrlList[i],
+                    lastModified = System.currentTimeMillis(),
                 )
             )
         }
-        return@let list.filter { row -> row.isValid() }
+        return hotelRowEntityList
     }
-
-    return HotelListEntity(
-        geoId = geoId,
-        hotelRowsList = hotelRowsList,
-        updateToken = getUpdateToken(this)
-    )
 }
 
 private fun getTitlesList(mapSections: List<MapSection>): List<String> =
@@ -91,10 +94,12 @@ private fun getPhotoUrlList(appPresentationQueryAppV2: AppPresentationQueryAppV2
 }
 
 private fun getUpdateToken(listHotelsResponse: ListHotelsResponse): String {
-    var updateToken = listHotelsResponse.data.appPresentationQueryAppListV2[0].statusV2.pollingStatus?.updateToken
+    var updateToken =
+        listHotelsResponse.data.appPresentationQueryAppListV2[0].statusV2.pollingStatus?.updateToken
 
     if (updateToken == null) {
-        val linkMap = listHotelsResponse.data.appPresentationQueryAppListV2[0].sections.last().link as Map<*, *>?
+        val linkMap =
+            listHotelsResponse.data.appPresentationQueryAppListV2[0].sections.last().link as Map<*, *>?
         if (linkMap?.containsKey("updateToken") == true) {
             updateToken = linkMap["updateToken"] as String
         }
