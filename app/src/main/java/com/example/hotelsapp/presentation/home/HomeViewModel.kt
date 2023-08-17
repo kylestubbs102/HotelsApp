@@ -1,7 +1,6 @@
 package com.example.hotelsapp.presentation.home
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hotelsapp.domain.repository.HotelsRepository
@@ -11,6 +10,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -19,14 +20,14 @@ class HomeViewModel @Inject constructor(
     private val hotelsRepository: HotelsRepository,
 ) : ViewModel() {
 
-    private val queryMutableState = mutableStateOf(HomeQueryState())
+    private val queryMutableState = MutableStateFlow(HomeQueryState())
 
-    val queryState: State<HomeQueryState>
+    val queryState: StateFlow<HomeQueryState>
         get() = queryMutableState
 
-    private val hotelListMutableState = mutableStateOf(HomeHotelListState())
+    private val hotelListMutableState = MutableStateFlow(HomeHotelListState())
 
-    val hotelListState: State<HomeHotelListState>
+    val hotelListState: StateFlow<HomeHotelListState>
         get() = hotelListMutableState
 
     private var queryJob: Job? = null

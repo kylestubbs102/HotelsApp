@@ -10,8 +10,12 @@ import com.example.hotelsapp.data.remote.HotelsApi
 import com.example.hotelsapp.data.remote.HotelsApi.Companion.HOTELS_BASE_URL
 import com.example.hotelsapp.data.remote.HotelsCalls
 import com.example.hotelsapp.data.remote.HotelsCallsImpl
+import com.example.hotelsapp.data.repository.HotelDetailsRepositoryImpl
 import com.example.hotelsapp.data.repository.HotelsRepositoryImpl
+import com.example.hotelsapp.domain.repository.HotelDetailsRepository
 import com.example.hotelsapp.domain.repository.HotelsRepository
+import com.example.hotelsapp.domain.usecase.FetchAndCacheHotelDetailsUseCase
+import com.example.hotelsapp.domain.usecase.GetCachedHotelPhotosUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -76,4 +80,23 @@ class AppModule {
         dao: HotelsDao,
         apiCalls: HotelsCalls
     ): HotelsRepository = HotelsRepositoryImpl(dao, apiCalls)
+
+    @Provides
+    @Singleton
+    fun provideHotelDetailsRepository(
+        dao: HotelsDao,
+        apiCalls: HotelsCalls
+    ): HotelDetailsRepository = HotelDetailsRepositoryImpl(dao, apiCalls)
+
+    @Provides
+    @Singleton
+    fun provideFetchAndCacheHotelDetailsUseCase(
+        hotelDetailsRepository: HotelDetailsRepository
+    ): FetchAndCacheHotelDetailsUseCase = FetchAndCacheHotelDetailsUseCase(hotelDetailsRepository)
+
+    @Provides
+    @Singleton
+    fun provideGetCachedHotelPhotosUseCase(
+        hotelDetailsRepository: HotelDetailsRepository
+    ): GetCachedHotelPhotosUseCase = GetCachedHotelPhotosUseCase(hotelDetailsRepository)
 }

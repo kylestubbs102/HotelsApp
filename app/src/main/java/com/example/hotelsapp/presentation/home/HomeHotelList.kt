@@ -40,12 +40,12 @@ private const val IMAGE_WIDTH = 500F
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun HotelResultsLazyColumn(
-    viewModel: HomeViewModel,
     navController: NavController,
+    hotelListState: HomeHotelListState,
 ) {
     val state = rememberLazyListState()
 
-    if (viewModel.hotelListState.value.isLoading) {
+    if (hotelListState.isLoading) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize()
@@ -59,7 +59,7 @@ fun HotelResultsLazyColumn(
             .fillMaxHeight(),
         state = state
     ) {
-        items(viewModel.hotelListState.value.hotelRows) { hotelRow ->
+        items(hotelListState.hotelRows) { hotelRow ->
             HotelDisplayRow(
                 navController = navController,
                 hotelRow = hotelRow
@@ -69,7 +69,7 @@ fun HotelResultsLazyColumn(
 
     GlideLazyListPreloader(
         state = state,
-        data = viewModel.hotelListState.value.hotelRows.map {
+        data = hotelListState.hotelRows.map {
             ImageUtil.getImageUrlWithHeightAndWidth(
                 it.photoUrl ?: "",
                 IMAGE_HEIGHT.toInt(),
@@ -77,7 +77,7 @@ fun HotelResultsLazyColumn(
             )
         },
         size = Size(IMAGE_WIDTH, IMAGE_HEIGHT),
-        numberOfItemsToPreload = viewModel.hotelListState.value.hotelRows.size,
+        numberOfItemsToPreload = hotelListState.hotelRows.size,
     ) { item, requestBuilder ->
         requestBuilder.load(item)
     }

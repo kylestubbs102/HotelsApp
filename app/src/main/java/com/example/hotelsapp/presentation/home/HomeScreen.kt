@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +40,9 @@ fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
+
+    val queryState = viewModel.queryState.collectAsState().value
+    val hotelListState = viewModel.hotelListState.collectAsState().value
 
     var queryTextFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
@@ -139,13 +143,13 @@ fun HomeScreen(
                     )
                 }
             }
-            QueryLazyColumn(viewModel.queryState.value.queryRows) { queryRow ->
+            QueryLazyColumn(queryState.queryRows) { queryRow ->
                 queryTextFieldValue =
                     TextFieldValue(queryRow.toString())
                 currentQuerySelection = queryRow
                 viewModel.clearQuery()
             }
         }
-        HotelResultsLazyColumn(viewModel, navController)
+        HotelResultsLazyColumn(navController, hotelListState)
     }
 }

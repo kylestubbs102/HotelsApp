@@ -8,6 +8,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.hotelsapp.presentation.home.HomeScreen
+import com.example.hotelsapp.presentation.hoteldetail.HotelDetailScreen
+
+const val CONTENT_ID = "contentId"
 
 @Composable
 fun NavGraph(navController: NavHostController, padding: PaddingValues) {
@@ -18,6 +21,9 @@ fun NavGraph(navController: NavHostController, padding: PaddingValues) {
     ) {
         composable(NavRoute.Home.path) {
             HomeScreen(navController)
+        }
+        composable(NavRoute.HotelDetail.path + "/{$CONTENT_ID}") {
+            HotelDetailScreen(navController)
         }
     }
 }

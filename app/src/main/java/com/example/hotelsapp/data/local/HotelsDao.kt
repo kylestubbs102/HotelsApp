@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.hotelsapp.data.local.entity.HotelPhotoEntity
 import com.example.hotelsapp.data.local.entity.HotelRowEntity
 import com.example.hotelsapp.data.local.entity.LocationQueryEntity
 
@@ -32,4 +33,14 @@ interface HotelsDao {
 
     @Query("SELECT EXISTS(SELECT * FROM hotelrowentity WHERE geoId = :geoId)")
     suspend fun doesHotelsListExist(geoId: Int): Boolean
+
+    // Hotel photos
+    @Query("SELECT * FROM hotelphotoentity WHERE contentId = :contentId ORDER BY lastModified")
+    suspend fun getHotelPhotoList(contentId: String): List<HotelPhotoEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertHotelPhotoList(hotelRowList: List<HotelPhotoEntity>)
+
+    @Query("SELECT EXISTS(SELECT * FROM hotelphotoentity WHERE contentId = :contentId)")
+    suspend fun doesHotelPhotoListExist(contentId: String): Boolean
 }
