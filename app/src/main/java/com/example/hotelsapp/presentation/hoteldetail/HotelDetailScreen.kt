@@ -73,7 +73,7 @@ fun HotelDetailScreen(
             .padding(10.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        PhotoViewPager(photosState.hotelPhotoList, navController)
+        PhotoViewPager(photosState.hotelPhotoList, navController, viewModel.contentId)
 
         if (showLoadingSpinner.not()) {
             HotelDetailInfo(

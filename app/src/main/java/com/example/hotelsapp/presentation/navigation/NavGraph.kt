@@ -9,8 +9,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.hotelsapp.presentation.home.HomeScreen
 import com.example.hotelsapp.presentation.hoteldetail.HotelDetailScreen
+import com.example.hotelsapp.presentation.map.HotelMapScreen
 
 const val CONTENT_ID = "contentId"
+const val GEO_ID = "geoId"
 
 @Composable
 fun NavGraph(navController: NavHostController, padding: PaddingValues) {
@@ -24,6 +26,12 @@ fun NavGraph(navController: NavHostController, padding: PaddingValues) {
         }
         composable(NavRoute.HotelDetail.path + "/{$CONTENT_ID}") {
             HotelDetailScreen(navController)
+        }
+        composable(NavRoute.HotelMap.path + "/{$CONTENT_ID}") {
+            HotelMapScreen(navController)
+        }
+        composable(NavRoute.HotelsMap.path + "/{$GEO_ID}") {
+            HotelMapScreen(navController)
         }
     }
 }

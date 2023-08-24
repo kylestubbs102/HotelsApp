@@ -31,6 +31,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.hotelsapp.R
 import com.example.hotelsapp.domain.model.HotelPhoto
+import com.example.hotelsapp.presentation.navigation.NavRoute
 import com.example.hotelsapp.util.ImageUtil
 
 private const val IMAGE_HEIGHT = 700
@@ -40,7 +41,8 @@ private const val IMAGE_WIDTH = 600
 @Composable
 fun PhotoViewPager(
     hotelPhotoList: List<HotelPhoto>,
-    navController: NavController
+    navController: NavController,
+    contentId: String
 ) {
     var hotelLikedState by remember {
         mutableStateOf(false)
@@ -81,6 +83,12 @@ fun PhotoViewPager(
             tint = if (hotelLikedState) Color.Red else Color.Black
         ) {
             hotelLikedState = hotelLikedState.not()
+        }
+        IconBox(
+            alignment = Alignment.BottomEnd,
+            drawable = R.drawable.ic_outline_map_24
+        ) {
+            navController.navigate(NavRoute.HotelMap.path + "/${contentId}")
         }
     }
 }

@@ -29,7 +29,7 @@ class HotelDetailViewModel @Inject constructor(
     private val getCachedHotelReviewsUseCase: GetCachedHotelReviewsUseCase,
 ) : ViewModel() {
 
-    private val contentId: String = checkNotNull(savedStateHandle[CONTENT_ID])
+    val contentId: String = checkNotNull(savedStateHandle[CONTENT_ID])
 
     private val hotelPhotosMutableState = MutableStateFlow(HotelPhotosState(isLoading = true))
 

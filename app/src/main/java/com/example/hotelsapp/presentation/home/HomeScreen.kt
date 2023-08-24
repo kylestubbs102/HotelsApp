@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,13 +30,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.hotelsapp.R
 import com.example.hotelsapp.domain.model.LocationQueryRow
+import com.example.hotelsapp.presentation.navigation.NavRoute
 
 @Composable
 fun HomeScreen(
@@ -62,94 +68,115 @@ fun HomeScreen(
 
     val focusManager = LocalFocusManager.current
 
-    Column(modifier = Modifier.fillMaxHeight()) {
-        AnimatedVisibility(
-            visible = hotelListScreenVisible.not(),
-            enter = slideInVertically(),
-            exit = shrinkVertically()
-        ) {
-            Text(
-                text = "Find the perfect hotel",
-                modifier = Modifier.padding(20.dp, 50.dp, 20.dp, 10.dp),
-                fontSize = 40.sp,
-                lineHeight = 50.sp
-            )
-        }
-        Box {
-            Column(
-                modifier = Modifier
-                    .padding(20.dp, 10.dp)
-                    .background(color = Color.Gray, shape = RoundedCornerShape(10.dp))
-                    .fillMaxWidth()
-                    .padding(10.dp)
-
-            ) {
-                LocationTextField(
-                    queryTextFieldValue,
-                    focusRequester,
-                    onValueChange = { textFieldValue ->
-                        // Don't reset text when setting it to the selection
-                        if (currentQuerySelection.toString() != textFieldValue.text) {
-                            queryTextFieldValue = textFieldValue
-                            currentQuerySelection = null
-                            viewModel.queryLocation(textFieldValue.text)
-                        }
-                    },
-                    onFocusChange = { focusState ->
-                        if (focusState.isFocused) {
-                            val text = queryTextFieldValue.text
-                            queryTextFieldValue = queryTextFieldValue.copy(
-                                selection = TextRange(0, text.length)
-                            )
-                        }
-                    }
-                )
-
-                Row(
-                    modifier = Modifier
-                        .padding(vertical = 5.dp)
-                        .background(
-                            color = Color.Green,
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .fillMaxWidth()
-                ) {
-                    DateTextField("Check-in", focusRequester) {
-                        queryTextFieldValue =
-                            queryTextFieldValue.copy(selection = TextRange(0, 0))
-                    }
-                    DateTextField("Check-out", focusRequester) {
-                        queryTextFieldValue =
-                            queryTextFieldValue.copy(selection = TextRange(0, 0))
-                    }
-                }
-                Button(
-                    onClick = {
-                        // TODO : animate form up and only show name and check in/out dates
-                        //  Also, display the list of hotels found
-                        currentQuerySelection?.geoId?.let { viewModel.searchHotelsList(it, true) }
-                        hotelListScreenVisible = true
-                        focusManager.clearFocus()
-                    },
-                    enabled = currentQuerySelection != null,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally),
-                    colors = ButtonDefaults.buttonColors(Color.Black)
-                ) {
-                    Text(
-                        text = "Find"
+    Scaffold(
+        floatingActionButton = {
+            if (hotelListState.hotelRows.isNotEmpty()) {
+                FloatingActionButton(onClick = {
+                    navController.navigate(NavRoute.HotelsMap.path + "/${hotelListState.hotelRows.first().geoId}")
+                }, containerColor = Color.Black) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_outline_map_24),
+                        contentDescription = "Map icon",
+                        tint = Color.White,
                     )
                 }
             }
-            QueryLazyColumn(queryState.queryRows) { queryRow ->
-                queryTextFieldValue =
-                    TextFieldValue(queryRow.toString())
-                currentQuerySelection = queryRow
-                viewModel.clearQuery()
-            }
         }
-        HotelResultsLazyColumn(navController, hotelListState)
+    ) {
+        Column(modifier = Modifier.fillMaxHeight()) {
+            AnimatedVisibility(
+                visible = hotelListScreenVisible.not(),
+                enter = slideInVertically(),
+                exit = shrinkVertically()
+            ) {
+                Text(
+                    text = "Find the perfect hotel",
+                    modifier = Modifier.padding(20.dp, 50.dp, 20.dp, 10.dp),
+                    fontSize = 40.sp,
+                    lineHeight = 50.sp
+                )
+            }
+            Box {
+                Column(
+                    modifier = Modifier
+                        .padding(20.dp, 10.dp)
+                        .background(color = Color.Gray, shape = RoundedCornerShape(10.dp))
+                        .fillMaxWidth()
+                        .padding(10.dp)
+
+                ) {
+                    LocationTextField(
+                        queryTextFieldValue,
+                        focusRequester,
+                        onValueChange = { textFieldValue ->
+                            // Don't reset text when setting it to the selection
+                            if (currentQuerySelection.toString() != textFieldValue.text) {
+                                queryTextFieldValue = textFieldValue
+                                currentQuerySelection = null
+                                viewModel.queryLocation(textFieldValue.text)
+                            }
+                        },
+                        onFocusChange = { focusState ->
+                            if (focusState.isFocused) {
+                                val text = queryTextFieldValue.text
+                                queryTextFieldValue = queryTextFieldValue.copy(
+                                    selection = TextRange(0, text.length)
+                                )
+                            }
+                        }
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .padding(vertical = 5.dp)
+                            .background(
+                                color = Color.Green,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .fillMaxWidth()
+                    ) {
+                        DateTextField("Check-in", focusRequester) {
+                            queryTextFieldValue =
+                                queryTextFieldValue.copy(selection = TextRange(0, 0))
+                        }
+                        DateTextField("Check-out", focusRequester) {
+                            queryTextFieldValue =
+                                queryTextFieldValue.copy(selection = TextRange(0, 0))
+                        }
+                    }
+                    Button(
+                        onClick = {
+                            // TODO : animate form up and only show name and check in/out dates
+                            //  Also, display the list of hotels found
+                            currentQuerySelection?.geoId?.let {
+                                viewModel.searchHotelsList(
+                                    it,
+                                    true
+                                )
+                            }
+                            hotelListScreenVisible = true
+                            focusManager.clearFocus()
+                        },
+                        enabled = currentQuerySelection != null,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally),
+                        colors = ButtonDefaults.buttonColors(Color.Black)
+                    ) {
+                        Text(
+                            text = "Find"
+                        )
+                    }
+                }
+                QueryLazyColumn(queryState.queryRows) { queryRow ->
+                    queryTextFieldValue =
+                        TextFieldValue(queryRow.toString())
+                    currentQuerySelection = queryRow
+                    viewModel.clearQuery()
+                }
+            }
+            HotelResultsLazyColumn(navController, hotelListState)
+        }
     }
 }

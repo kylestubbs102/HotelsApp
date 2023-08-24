@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id "dagger.hilt.android.plugin"
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
@@ -97,4 +98,7 @@ dependencies {
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
     implementation 'androidx.hilt:hilt-navigation-compose:1.1.0-alpha01'
 
+    // Maps
+    implementation 'com.google.maps.android:maps-compose:2.14.0'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
 }

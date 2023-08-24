@@ -14,7 +14,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,6 +39,8 @@ import com.example.hotelsapp.util.ImageUtil
 
 private const val IMAGE_HEIGHT = 500F
 private const val IMAGE_WIDTH = 500F
+
+private const val ORANGE_HEX = 0xFFFFA500
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -123,11 +128,15 @@ fun HotelDisplayRow(
                 .padding(horizontal = 10.dp)
         ) {
             if (hotelRow.rating != null) {
-                Row(
-                    modifier = Modifier.align(alignment = Alignment.TopEnd)
-                ) {
-                    Text(text = "Rating: ${hotelRow.rating}")
-                    Text(text = " (${hotelRow.numberOfReviews.toString()})")
+                Row(modifier = Modifier.align(alignment = Alignment.TopEnd)) {
+                    Icon(
+                        Icons.Outlined.Star, "Star",
+                        tint = Color(ORANGE_HEX),
+                        modifier = Modifier.padding(end = 5.dp)
+                    )
+                    Text(text = hotelRow.rating.toString())
+                    Text(text = " ")
+                    Text(text = "(${hotelRow.numberOfReviews ?: "?"})")
                 }
             }
             Text(
