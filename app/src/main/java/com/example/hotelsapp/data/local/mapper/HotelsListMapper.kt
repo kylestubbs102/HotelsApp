@@ -9,11 +9,25 @@ import com.example.hotelsapp.data.remote.dto.responses.listhotels.MapSection
 import com.example.hotelsapp.domain.model.HotelRow
 import org.json.JSONObject
 
+fun HotelRowEntity.toHotelRow(): HotelRow =
+    HotelRow(
+        hotel = hotel,
+        contentId = contentId,
+        geoId = geoId,
+        latitude = latitude,
+        longitude = longitude,
+        updateToken = updateToken,
+        rating = rating,
+        numberOfReviews = numberOfReviews,
+        photoUrl = photoUrl,
+    )
+
 fun List<HotelRowEntity>.toHotelRowList(): List<HotelRow> =
     this.map {
         HotelRow(
             hotel = it.hotel,
             contentId = it.contentId,
+            geoId = it.geoId,
             latitude = it.latitude,
             longitude = it.longitude,
             updateToken = it.updateToken,

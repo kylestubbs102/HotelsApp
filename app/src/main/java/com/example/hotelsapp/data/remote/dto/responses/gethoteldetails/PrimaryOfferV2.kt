@@ -1,6 +1,6 @@
 package com.example.hotelsapp.data.remote.dto.responses.gethoteldetails
 
-
+import com.example.hotelsapp.data.remote.dto.responses.gethoteloffers.DisplayPrice
 import com.google.gson.annotations.SerializedName
 
 data class PrimaryOfferV2(
@@ -9,7 +9,7 @@ data class PrimaryOfferV2(
     @SerializedName("details")
     val details: List<Any>,
     @SerializedName("displayPrice")
-    val displayPrice: Any?,
+    val displayPrice: DisplayPrice?,
     @SerializedName("labels")
     val labels: List<Any>,
     @SerializedName("pricingPeriod")

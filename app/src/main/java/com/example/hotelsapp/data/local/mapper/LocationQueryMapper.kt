@@ -17,14 +17,16 @@ fun SearchLocationsResponse.toLocationQueryEntityList(query: String): List<Locat
         )
     }
 
+fun LocationQueryEntity.toLocationQueryRow(): LocationQueryRow =
+    LocationQueryRow(
+        geoId = geoId,
+        location = location,
+        city = city,
+    )
+
 fun List<LocationQueryEntity>.toLocationQueryRowList(): List<LocationQueryRow> =
-    this.map {
-        LocationQueryRow(
-            geoId = it.geoId,
-            location = it.location,
-            city = it.city,
-        )
-    }.filter { it.isValid() }
+    this.map { it.toLocationQueryRow() }
+        .filter { it.isValid() }
 
 private fun getCity(section: Section): String? =
     section.appSearchCardContent?.let {

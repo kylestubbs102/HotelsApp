@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.hotelsapp.data.local.entity.HotelDetailsEntity
 import com.example.hotelsapp.data.local.entity.HotelPhotoEntity
+import com.example.hotelsapp.data.local.entity.HotelReviewEntity
 import com.example.hotelsapp.data.local.entity.HotelRowEntity
 import com.example.hotelsapp.data.local.entity.LocationQueryEntity
 
@@ -21,6 +23,9 @@ interface HotelsDao {
     @Query("SELECT EXISTS(SELECT * FROM locationqueryentity WHERE `query` = :query)")
     suspend fun doesQueryExist(query: String): Boolean
 
+    @Query("SELECT * FROM locationqueryentity WHERE geoId = :geoId")
+    suspend fun getLocationQueryFromGeoId(geoId: Int): LocationQueryEntity
+
     // Hotels list results
     @Query("SELECT * FROM hotelrowentity WHERE geoId = :geoId ORDER BY lastModified")
     suspend fun getHotelRowList(geoId: Int): List<HotelRowEntity>
@@ -34,13 +39,36 @@ interface HotelsDao {
     @Query("SELECT EXISTS(SELECT * FROM hotelrowentity WHERE geoId = :geoId)")
     suspend fun doesHotelsListExist(geoId: Int): Boolean
 
+    @Query("SELECT * FROM hotelrowentity WHERE contentId = :contentId")
+    suspend fun getHotelRowFromContentId(contentId: String): HotelRowEntity
+
     // Hotel photos
     @Query("SELECT * FROM hotelphotoentity WHERE contentId = :contentId ORDER BY lastModified")
     suspend fun getHotelPhotoList(contentId: String): List<HotelPhotoEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertHotelPhotoList(hotelRowList: List<HotelPhotoEntity>)
+    suspend fun insertHotelPhotoList(hotelPhotoList: List<HotelPhotoEntity>)
 
     @Query("SELECT EXISTS(SELECT * FROM hotelphotoentity WHERE contentId = :contentId)")
     suspend fun doesHotelPhotoListExist(contentId: String): Boolean
+
+    // Hotel details
+    @Query("SELECT * FROM hoteldetailsentity WHERE contentId = :contentId")
+    suspend fun getHotelDetails(contentId: String): HotelDetailsEntity
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertHotelDetails(hotelDetails: HotelDetailsEntity)
+
+    @Query("SELECT EXISTS(SELECT * FROM hoteldetailsentity WHERE contentId = :contentId)")
+    suspend fun doHotelDetailsExist(contentId: String): Boolean
+
+    // Hotel reviews
+    @Query("SELECT * FROM hotelreviewentity WHERE contentId = :contentId ORDER BY lastModified")
+    suspend fun getHotelReviewList(contentId: String): List<HotelReviewEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertHotelReviewList(hotelRowList: List<HotelReviewEntity>)
+
+    @Query("SELECT EXISTS(SELECT * FROM hotelreviewentity WHERE contentId = :contentId)")
+    suspend fun doesHotelReviewListExist(contentId: String): Boolean
 }

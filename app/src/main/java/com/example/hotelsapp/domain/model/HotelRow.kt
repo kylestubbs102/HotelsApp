@@ -3,6 +3,7 @@ package com.example.hotelsapp.domain.model
 data class HotelRow(
     val hotel: String,
     val contentId: Int,
+    val geoId: Int,
     val latitude: Double,
     val longitude: Double,
     val updateToken: String,

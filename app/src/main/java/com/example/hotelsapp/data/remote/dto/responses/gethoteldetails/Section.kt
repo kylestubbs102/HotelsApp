@@ -14,6 +14,8 @@ data class Section(
     val address: Address?,
     @SerializedName("anchor")
     val anchor: Anchor?,
+    @SerializedName("aspectRatio")
+    val aspectRatio: Any?,
     @SerializedName("background")
     val background: Any?,
     @SerializedName("badge")
@@ -21,7 +23,7 @@ data class Section(
     @SerializedName("bookViaHotelWebsite")
     val bookViaHotelWebsite: Any?,
     @SerializedName("bookViaHotelWebsiteSubtitle")
-    val bookViaHotelWebsiteSubtitle: Any?,
+    val bookViaHotelWebsiteSubtitle: BookViaHotelWebsiteSubtitle?,
     @SerializedName("byProviderLink")
     val byProviderLink: Any?,
     @SerializedName("center")
@@ -58,12 +60,16 @@ data class Section(
     val link: Any?,
     @SerializedName("managementCenterRoute")
     val managementCenterRoute: Any?,
+    @SerializedName("mediumCardsCarouselContent")
+    val mediumCardsCarouselContent: List<MediumCardsCarouselContent>?,
     @SerializedName("name")
     val name: String?,
     @SerializedName("neighborhood")
     val neighborhood: Any?,
     @SerializedName("nonNullContent")
     val nonNullContent: List<NonNullContent>?,
+    @SerializedName("nonNullTitle")
+    val nonNullTitle: NonNullTitle?,
     @SerializedName("nullableContent")
     val nullableContent: List<NullableContent>?,
     @SerializedName("nullableText")
@@ -100,10 +106,12 @@ data class Section(
     val sectionTitle: SectionTitleX?,
     @SerializedName("sectionType")
     val sectionType: String?,
+    @SerializedName("seeAllV2")
+    val seeAllV2: Any?,
     @SerializedName("showMore")
     val showMore: ShowMore?,
     @SerializedName("similarHotels")
-    val similarHotels: Any?,
+    val similarHotels: SimilarHotels?,
     @SerializedName("spacing")
     val spacing: String?,
     @SerializedName("sponsoredBy")
@@ -112,6 +120,8 @@ data class Section(
     val stableDiffingType: String,
     @SerializedName("state")
     val state: String?,
+    @SerializedName("subtitle")
+    val subtitle: Any?,
     @SerializedName("tabs")
     val tabs: List<Tab>?,
     @SerializedName("tagsSubsection")
@@ -122,6 +132,8 @@ data class Section(
     val targetingParams: List<TargetingParam>?,
     @SerializedName("tooltip")
     val tooltip: Any?,
+    @SerializedName("tooltipV2")
+    val tooltipV2: Any?,
     @SerializedName("trackingKey")
     val trackingKey: String?,
     @SerializedName("trackingTitle")

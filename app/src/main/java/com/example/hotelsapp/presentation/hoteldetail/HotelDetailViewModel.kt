@@ -4,7 +4,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hotelsapp.domain.usecase.FetchAndCacheHotelDetailsUseCase
+import com.example.hotelsapp.domain.usecase.GetCachedHotelDetailsUseCase
 import com.example.hotelsapp.domain.usecase.GetCachedHotelPhotosUseCase
+import com.example.hotelsapp.domain.usecase.GetCachedHotelReviewsUseCase
+import com.example.hotelsapp.domain.usecase.GetHotelRowInfoUseCase
+import com.example.hotelsapp.domain.usecase.GetLocationQueryUseCase
 import com.example.hotelsapp.presentation.navigation.CONTENT_ID
 import com.example.hotelsapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,16 +21,35 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class HotelDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    private val getHotelRowInfoUseCase: GetHotelRowInfoUseCase,
+    private val getLocationQueryUseCase: GetLocationQueryUseCase,
     private val fetchAndCacheHotelDetailsUseCase: FetchAndCacheHotelDetailsUseCase,
     private val getCachedHotelPhotosUseCase: GetCachedHotelPhotosUseCase,
+    private val getCachedHotelDetailsUseCase: GetCachedHotelDetailsUseCase,
+    private val getCachedHotelReviewsUseCase: GetCachedHotelReviewsUseCase,
 ) : ViewModel() {
 
     private val contentId: String = checkNotNull(savedStateHandle[CONTENT_ID])
 
-    private val hotelDetailsMutableState = MutableStateFlow(HotelDetailState())
+    private val hotelPhotosMutableState = MutableStateFlow(HotelPhotosState(isLoading = true))
 
-    val hotelDetailState: StateFlow<HotelDetailState>
-        get() = hotelDetailsMutableState
+    val hotelPhotosState: StateFlow<HotelPhotosState>
+        get() = hotelPhotosMutableState
+
+    private val hotelRowMutableState = MutableStateFlow(HotelRowState(isLoading = true))
+
+    val hotelRowState: StateFlow<HotelRowState>
+        get() = hotelRowMutableState
+
+    private val hotelDetailMutableState = MutableStateFlow(HotelDetailsState(isLoading = true))
+
+    val hotelDetailState: StateFlow<HotelDetailsState>
+        get() = hotelDetailMutableState
+
+    private val hotelReviewMutableState = MutableStateFlow(HotelReviewsState(isLoading = true))
+
+    val hotelReviewState: StateFlow<HotelReviewsState>
+        get() = hotelReviewMutableState
 
     fun getHotelDetails() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -36,15 +59,31 @@ class HotelDetailViewModel @Inject constructor(
                 .collect {
                     when (it) {
                         is Resource.Loading -> {
-                            hotelDetailsMutableState.value = HotelDetailState(isLoading = true)
+                            // no-op
                         }
                         is Resource.Error -> {
-                            hotelDetailsMutableState.value = hotelDetailsMutableState.value.copy(
+                            // TODO : set all to error
+                        }
+                        is Resource.Success -> {
+                            fetchUIComponentsIndividually()
+                        }
+                    }
+                }
+
+            getHotelRowInfoUseCase(contentId)
+                .collect {
+                    when (it) {
+                        is Resource.Loading -> {
+                            hotelRowMutableState.value = HotelRowState(isLoading = true)
+                        }
+                        is Resource.Error -> {
+                            hotelRowMutableState.value = HotelRowState(
                                 error = it.message ?: "No error message present"
                             )
                         }
                         is Resource.Success -> {
-                            fetchUIComponentsIndividually()
+                            hotelRowMutableState.value = HotelRowState(hotelRow = it.data)
+                            getCachedLocationInfo(it.data?.geoId)
                         }
                     }
                 }
@@ -57,20 +96,91 @@ class HotelDetailViewModel @Inject constructor(
                 .collect {
                     when (it) {
                         is Resource.Loading -> {
-                            // No-op
+                            hotelPhotosMutableState.value = HotelPhotosState(isLoading = true)
                         }
                         is Resource.Error -> {
-                            hotelDetailsMutableState.value = hotelDetailsMutableState.value.copy(
+                            hotelPhotosMutableState.value = HotelPhotosState(
                                 error = it.message ?: "No error message present"
                             )
                         }
                         is Resource.Success -> {
-                            hotelDetailsMutableState.value = hotelDetailsMutableState.value.copy(
-                                isLoading = false, // remove later,
+                            hotelPhotosMutableState.value = HotelPhotosState(
                                 hotelPhotoList = it.data ?: emptyList()
                             )
-                            // TODO : Check if all jobs are done and remove isLoading. Only
-                            //  needed when more jobs are added
+                        }
+                    }
+                }
+
+            getCachedHotelDetailsUseCase(contentId)
+                .collect {
+                    when (it) {
+                        is Resource.Loading -> {
+                            hotelDetailMutableState.value = hotelDetailMutableState.value.copy(
+                                isLoading = true
+                            )
+                        }
+                        is Resource.Error -> {
+                            hotelDetailMutableState.value = hotelDetailMutableState.value.copy(
+                                error = it.message ?: "No error message present"
+                            )
+                        }
+                        is Resource.Success -> {
+                            hotelDetailMutableState.value = hotelDetailMutableState.value.copy(
+                                isLoading = false,
+                                hotelDetails = it.data
+                            )
+                        }
+                    }
+                }
+
+            getCachedHotelReviewsUseCase(contentId)
+                .collect {
+                    when (it) {
+                        is Resource.Loading -> {
+                            hotelReviewMutableState.value = HotelReviewsState(isLoading = true)
+                        }
+                        is Resource.Error -> {
+                            hotelReviewMutableState.value = HotelReviewsState(
+                                error = it.message ?: "No error message present"
+                            )
+                        }
+                        is Resource.Success -> {
+                            hotelReviewMutableState.value = HotelReviewsState(
+                                hotelReviews = it.data ?: emptyList()
+                            )
+                        }
+                    }
+                }
+        }
+    }
+
+    private suspend fun getCachedLocationInfo(geoId: Int?) {
+        if (geoId == null) {
+            hotelDetailMutableState.value = hotelDetailMutableState.value.copy(
+                error = "Not valid geoId provided"
+            )
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            getLocationQueryUseCase(geoId)
+                .collect {
+                    when (it) {
+                        is Resource.Loading -> {
+                            hotelDetailMutableState.value = hotelDetailMutableState.value.copy(
+                                isLoading = true
+                            )
+                        }
+                        is Resource.Error -> {
+                            hotelDetailMutableState.value = hotelDetailMutableState.value.copy(
+                                error = it.message ?: "No error message present"
+                            )
+                        }
+                        is Resource.Success -> {
+                            hotelDetailMutableState.value = hotelDetailMutableState.value.copy(
+                                isLoading = false,
+                                locationQueryRow = it.data
+                            )
                         }
                     }
                 }
