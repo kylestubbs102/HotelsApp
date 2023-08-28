@@ -2,6 +2,7 @@ package com.example.hotelsapp.presentation.hoteldetail
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -61,10 +62,10 @@ fun HotelDetailInfo(
         )
         Text(
             text = (locationQueryRow?.location + ", " + locationQueryRow?.city),
-            color = Color.Gray,
+            color = Color.DarkGray,
         )
     }
-    Row(modifier = Modifier.padding(bottom = 20.dp)) {
+    Row(modifier = Modifier.padding(bottom = 25.dp)) {
         Icon(
             Icons.Outlined.Star, "Star",
             tint = Color(ORANGE_HEX),
@@ -75,26 +76,29 @@ fun HotelDetailInfo(
         Text(text = "(${hotelRow?.numberOfReviews ?: "?"} reviews)")
     }
 
-    Text(
-        text = hotelDetails?.address ?: "Address unavailable",
-        modifier = Modifier.padding(bottom = 5.dp)
-    )
-    Text(
-        text = (PhoneUtil.getPhoneNumberFormatted(hotelDetails?.phoneNumber)
-            ?: "Phone number unavailable"),
-        color = if (PhoneUtil.isPhoneNumberValid(hotelDetails?.phoneNumber)) Color.Blue else Color.Black,
-        modifier = Modifier.clickable {
-            if (PhoneUtil.isPhoneNumberValid(hotelDetails?.phoneNumber)) {
-                PhoneUtil.startPhoneDialIntent(hotelDetails?.phoneNumber, context)
+    Column(modifier = Modifier.padding(bottom = 10.dp)) {
+        Text(
+            text = hotelDetails?.address ?: "Address unavailable",
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        Text(
+            text = (PhoneUtil.getPhoneNumberFormatted(hotelDetails?.phoneNumber)
+                ?: "Phone number unavailable"),
+            color = if (PhoneUtil.isPhoneNumberValid(hotelDetails?.phoneNumber)) Color.Blue else Color.Black,
+            modifier = Modifier.clickable {
+                if (PhoneUtil.isPhoneNumberValid(hotelDetails?.phoneNumber)) {
+                    PhoneUtil.startPhoneDialIntent(hotelDetails?.phoneNumber, context)
+                }
             }
-        }
-    )
+        )
+    }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = "Description",
             modifier = Modifier.padding(vertical = 10.dp),
             fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
         )
         Spacer(modifier = Modifier.weight(1F))
         Text(

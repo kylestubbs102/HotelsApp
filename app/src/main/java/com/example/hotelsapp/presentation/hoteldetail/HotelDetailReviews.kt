@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.hotelsapp.domain.model.HotelReviewRow
@@ -28,8 +29,9 @@ fun HotelDetailReviews(hotelReviews: List<HotelReviewRow>) {
 
     Text(
         text = "Reviews",
-        modifier = Modifier.padding(vertical = 10.dp),
+        modifier = Modifier.padding(vertical = 20.dp),
         fontWeight = FontWeight.Bold,
+        fontSize = 18.sp,
     )
 
     Column {
@@ -53,9 +55,9 @@ fun HotelDetailReviews(hotelReviews: List<HotelReviewRow>) {
                 )
                 Column(modifier = Modifier.padding(start = 10.dp)) {
                     Row {
-                        Text(text = it.username)
+                        Text(text = it.username, fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.weight(1F))
-                        Text(text = it.date)
+                        Text(text = it.date, fontWeight = FontWeight.SemiBold)
                     }
                     Text(
                         text = it.review,
