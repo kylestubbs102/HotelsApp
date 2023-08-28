@@ -35,7 +35,7 @@ fun LocationTextField(
                 onFocusChange(focusState)
             }
             .background(
-                color = Color.Green,
+                color = Color(0xFFF6F6F6),
                 shape = RoundedCornerShape(10.dp)
             )
             .fillMaxWidth(),

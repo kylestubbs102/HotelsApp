@@ -27,11 +27,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,10 +60,6 @@ fun HomeScreen(
         mutableStateOf(null)
     }
 
-    var hotelListScreenVisible: Boolean by remember {
-        mutableStateOf(false)
-    }
-
     val focusRequester = remember {
         FocusRequester()
     }
@@ -84,8 +82,9 @@ fun HomeScreen(
         }
     ) {
         Column(modifier = Modifier.fillMaxHeight()) {
+            // Hide when loading, and when rows are populated
             AnimatedVisibility(
-                visible = hotelListScreenVisible.not(),
+                visible = (hotelListState.isLoading.not() && hotelListState.hotelRows.isEmpty()) || hotelListState.hotelRows.isEmpty(),
                 enter = slideInVertically(),
                 exit = shrinkVertically()
             ) {
@@ -93,6 +92,7 @@ fun HomeScreen(
                     text = "Find the perfect hotel",
                     modifier = Modifier.padding(20.dp, 50.dp, 20.dp, 10.dp),
                     fontSize = 40.sp,
+                    fontWeight = FontWeight.SemiBold,
                     lineHeight = 50.sp
                 )
             }
@@ -100,7 +100,8 @@ fun HomeScreen(
                 Column(
                     modifier = Modifier
                         .padding(20.dp, 10.dp)
-                        .background(color = Color.Gray, shape = RoundedCornerShape(10.dp))
+                        .shadow(5.dp)
+                        .background(color = Color.White, shape = RoundedCornerShape(10.dp))
                         .fillMaxWidth()
                         .padding(10.dp)
 
@@ -130,7 +131,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .padding(vertical = 5.dp)
                             .background(
-                                color = Color.Green,
+                                color = Color(0xFFF6F6F6),
                                 shape = RoundedCornerShape(10.dp)
                             )
                             .fillMaxWidth()
@@ -146,15 +147,12 @@ fun HomeScreen(
                     }
                     Button(
                         onClick = {
-                            // TODO : animate form up and only show name and check in/out dates
-                            //  Also, display the list of hotels found
                             currentQuerySelection?.geoId?.let {
                                 viewModel.searchHotelsList(
                                     it,
                                     true
                                 )
                             }
-                            hotelListScreenVisible = true
                             focusManager.clearFocus()
                         },
                         enabled = currentQuerySelection != null,
