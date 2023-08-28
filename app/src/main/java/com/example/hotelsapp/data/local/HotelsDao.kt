@@ -30,14 +30,22 @@ interface HotelsDao {
     @Query("SELECT * FROM hotelrowentity WHERE geoId = :geoId ORDER BY lastModified")
     suspend fun getHotelRowList(geoId: Int): List<HotelRowEntity>
 
-    @Query("SELECT * FROM hotelrowentity WHERE geoId = :geoId AND updateToken = :updateToken ORDER BY lastModified")
-    suspend fun getHotelRowList(geoId: Int, updateToken: String): List<HotelRowEntity>
+    @Query("SELECT * FROM hotelrowentity WHERE geoId = :geoId AND checkIn = :checkIn AND checkOut = :checkOut ORDER BY lastModified")
+    suspend fun getHotelRowList(geoId: Int, checkIn: String, checkOut: String): List<HotelRowEntity>
+
+    @Query("SELECT * FROM hotelrowentity WHERE geoId = :geoId AND checkIn = :checkIn AND checkOut = :checkOut AND updateToken = :updateToken ORDER BY lastModified")
+    suspend fun getHotelRowList(
+        geoId: Int,
+        checkIn: String,
+        checkOut: String,
+        updateToken: String
+    ): List<HotelRowEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHotelRowList(hotelRowList: List<HotelRowEntity>)
 
-    @Query("SELECT EXISTS(SELECT * FROM hotelrowentity WHERE geoId = :geoId)")
-    suspend fun doesHotelsListExist(geoId: Int): Boolean
+    @Query("SELECT EXISTS(SELECT * FROM hotelrowentity WHERE geoId = :geoId AND checkIn = :checkIn AND checkOut = :checkOut)")
+    suspend fun doesHotelsListExist(geoId: Int, checkIn: String, checkOut: String): Boolean
 
     @Query("SELECT * FROM hotelrowentity WHERE contentId = :contentId")
     suspend fun getHotelRowFromContentId(contentId: String): HotelRowEntity

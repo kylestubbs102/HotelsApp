@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.hotelsapp.R
-import com.example.hotelsapp.domain.model.LocationQueryRow
 import com.example.hotelsapp.presentation.navigation.NavRoute
 
 @Composable
@@ -56,8 +55,8 @@ fun HomeScreen(
         mutableStateOf(TextFieldValue(""))
     }
 
-    var currentQuerySelection: LocationQueryRow? by remember {
-        mutableStateOf(null)
+    var showDatePicker by remember {
+        mutableStateOf(false)
     }
 
     val focusRequester = remember {
@@ -111,9 +110,9 @@ fun HomeScreen(
                         focusRequester,
                         onValueChange = { textFieldValue ->
                             // Don't reset text when setting it to the selection
-                            if (currentQuerySelection.toString() != textFieldValue.text) {
+                            if (queryState.querySelection.toString() != textFieldValue.text) {
                                 queryTextFieldValue = textFieldValue
-                                currentQuerySelection = null
+                                viewModel.clearQuerySelection()
                                 viewModel.queryLocation(textFieldValue.text)
                             }
                         },
@@ -136,18 +135,25 @@ fun HomeScreen(
                             )
                             .fillMaxWidth()
                     ) {
-                        DateTextField("Check-in", focusRequester) {
+                        DateTextField(queryState.dates.first, "Check-in") {
                             queryTextFieldValue =
                                 queryTextFieldValue.copy(selection = TextRange(0, 0))
+                            showDatePicker = it.hasFocus
                         }
-                        DateTextField("Check-out", focusRequester) {
+                        DateTextField(queryState.dates.second, "Check-out") {
                             queryTextFieldValue =
                                 queryTextFieldValue.copy(selection = TextRange(0, 0))
+                            showDatePicker = it.hasFocus
                         }
                     }
+
+                    val buttonIsClickable = queryState.querySelection != null
+                            && queryState.dates.first.isNotEmpty()
+                            && queryState.dates.second.isNotEmpty()
+
                     Button(
                         onClick = {
-                            currentQuerySelection?.geoId?.let {
+                            queryState.querySelection?.geoId?.let {
                                 viewModel.searchHotelsList(
                                     it,
                                     true
@@ -155,7 +161,7 @@ fun HomeScreen(
                             }
                             focusManager.clearFocus()
                         },
-                        enabled = currentQuerySelection != null,
+                        enabled = buttonIsClickable,
                         modifier = Modifier
                             .clip(RoundedCornerShape(10.dp))
                             .fillMaxWidth()
@@ -170,11 +176,21 @@ fun HomeScreen(
                 QueryLazyColumn(queryState.queryRows) { queryRow ->
                     queryTextFieldValue =
                         TextFieldValue(queryRow.toString())
-                    currentQuerySelection = queryRow
-                    viewModel.clearQuery()
+                    viewModel.setQuerySelection(queryRow)
                 }
             }
             HotelResultsLazyColumn(navController, hotelListState)
         }
+    }
+
+    if (showDatePicker) {
+        HomeDatePicker(
+            onConfirm = { startDate, endDate ->
+                showDatePicker = false
+                viewModel.setSearchQueryDates(startDate, endDate)
+            }, onDismiss = {
+                showDatePicker = false
+            }
+        )
     }
 }

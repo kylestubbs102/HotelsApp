@@ -2,6 +2,7 @@ package com.example.hotelsapp.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.hotelsapp.domain.model.LocationQueryRow
 import com.example.hotelsapp.domain.repository.HotelsRepository
 import com.example.hotelsapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,23 +48,34 @@ class HomeViewModel @Inject constructor(
                 .collectLatest {
                     when (it) {
                         is Resource.Loading -> {
-                            queryMutableState.value = HomeQueryState(
+                            queryMutableState.value = queryMutableState.value.copy(
                                 isLoading = true,
                             )
                         }
                         is Resource.Success -> {
-                            queryMutableState.value = HomeQueryState(
+                            queryMutableState.value = queryMutableState.value.copy(
+                                isLoading = false,
                                 queryRows = it.data?.take(QUERY_RESULT_LENGTH) ?: emptyList(),
                             )
                         }
                         is Resource.Error -> {
-                            queryMutableState.value = HomeQueryState(
+                            queryMutableState.value = queryMutableState.value.copy(
+                                isLoading = false,
                                 error = it.message ?: "An unexpected error occurred"
                             )
                         }
                     }
                 }
         }
+    }
+
+    fun setSearchQueryDates(
+        startDate: String,
+        endDate: String
+    ) = run {
+        queryMutableState.value = queryMutableState.value.copy(
+            dates = Pair(startDate, endDate)
+        )
     }
 
     fun searchHotelsList(
@@ -73,7 +85,7 @@ class HomeViewModel @Inject constructor(
         searchHotelsListJob?.cancel()
         searchHotelsListJob = viewModelScope.launch(Dispatchers.IO) {
             hotelsRepository
-                .getHotelsList(geoId, updateToken, isInitialFetch)
+                .getHotelsList(geoId, queryState.value.dates, updateToken, isInitialFetch)
                 .collectLatest {
                     when (it) {
                         is Resource.Loading -> {
@@ -82,7 +94,8 @@ class HomeViewModel @Inject constructor(
                             )
                         }
                         is Resource.Success -> {
-                            hotelListMutableState.value = HomeHotelListState(
+                            hotelListMutableState.value = hotelListMutableState.value.copy(
+                                isLoading = false,
                                 hotelRows = it.data ?: emptyList(),
                             )
                             // Fetch update token from last item to page for next items
@@ -98,8 +111,17 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun clearQuery() = run {
-        queryMutableState.value = HomeQueryState()
+    fun setQuerySelection(locationQueryRow: LocationQueryRow) = run {
+        queryMutableState.value = HomeQueryState(
+            querySelection = locationQueryRow,
+            dates = queryState.value.dates,
+        )
+    }
+
+    fun clearQuerySelection() {
+        queryMutableState.value = queryMutableState.value.copy(
+            querySelection = null
+        )
     }
 
     private fun canPerformSearch(query: String): Boolean = query.length >= MIN_QUERY_LENGTH

@@ -37,7 +37,10 @@ fun List<HotelRowEntity>.toHotelRowList(): List<HotelRow> =
         )
     }
 
-fun ListHotelsResponse.toHotelRowEntityList(geoId: Int): List<HotelRowEntity> {
+fun ListHotelsResponse.toHotelRowEntityList(
+    geoId: Int,
+    dates: Pair<String, String>
+): List<HotelRowEntity> {
 
     this.data.appPresentationQueryAppListV2[0].let {
 
@@ -53,6 +56,8 @@ fun ListHotelsResponse.toHotelRowEntityList(geoId: Int): List<HotelRowEntity> {
                 HotelRowEntity(
                     contentId = contentIdList[i],
                     geoId = geoId,
+                    checkIn = dates.first,
+                    checkOut = dates.second,
                     hotel = titlesList[i],
                     longitude = geoPointList[i].longitude,
                     latitude = geoPointList[i].latitude,

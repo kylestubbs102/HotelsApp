@@ -51,29 +51,47 @@ class HotelsRepositoryImpl(
 
     override suspend fun getHotelsList(
         geoId: Int,
+        dates: Pair<String, String>,
         updateToken: String,
         isInitialFetch: Boolean
     ): Flow<Resource<List<HotelRow>>> =
         flow {
             emit(Resource.Loading())
             // If initial fetch, check if data is present and return if present.
-            if (isInitialFetch && dao.doesHotelsListExist(geoId)) {
-                emit(Resource.Success(dao.getHotelRowList(geoId).toHotelRowList()))
+            if (isInitialFetch && dao.doesHotelsListExist(geoId, dates.first, dates.second)) {
+                emit(
+                    Resource.Success(
+                        dao.getHotelRowList(geoId, dates.first, dates.second).toHotelRowList()
+                    )
+                )
                 return@flow
             }
 
             // Fetch from server
-            val listHotelsRequest = ListHotelsRequest(geoId)
+            val listHotelsRequest = ListHotelsRequest(
+                geoId = geoId,
+                checkIn = dates.first,
+                checkOut = dates.second
+            )
             try {
                 val listHotelsResponse = apiCalls.listHotels(listHotelsRequest)
 
                 // Map to db entity
-                val entity = listHotelsResponse.toHotelRowEntityList(geoId)
+                val entity = listHotelsResponse.toHotelRowEntityList(geoId, dates)
                 val newUpdateToken = entity.first().updateToken
 
                 // put and return from db
                 dao.insertHotelRowList(entity)
-                emit(Resource.Success(dao.getHotelRowList(geoId, newUpdateToken).toHotelRowList()))
+                emit(
+                    Resource.Success(
+                        dao.getHotelRowList(
+                            geoId,
+                            dates.first,
+                            dates.second,
+                            newUpdateToken
+                        ).toHotelRowList()
+                    )
+                )
             } catch (e: HttpException) {
                 emit(Resource.Error("Failed due to HttpException: ${e.message}"))
             } catch (e: IOException) {

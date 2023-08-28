@@ -13,11 +13,19 @@ class GetHotelRowInfoUseCase(
     private val hotelsDao: HotelsDao
 ) {
 
-    operator fun invoke(geoId: Int): Flow<Resource<List<HotelRow>>> =
+    operator fun invoke(
+        geoId: Int,
+        checkIn: String? = null,
+        checkOut: String? = null,
+    ): Flow<Resource<List<HotelRow>>> =
         flow {
             try {
                 emit(Resource.Loading())
-                val hotelRowEntities = hotelsDao.getHotelRowList(geoId)
+                val hotelRowEntities = if (checkIn != null && checkOut != null) {
+                    hotelsDao.getHotelRowList(geoId, checkIn, checkOut)
+                } else {
+                    hotelsDao.getHotelRowList(geoId)
+                }
                 emit(Resource.Success(hotelRowEntities.toHotelRowList()))
             } catch (e: Exception) {
                 // rethrow to prevent zombie state

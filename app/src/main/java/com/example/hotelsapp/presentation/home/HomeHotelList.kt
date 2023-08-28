@@ -102,7 +102,7 @@ fun HotelDisplayRow(
             .padding(10.dp)
             .shadow(5.dp)
             .background(
-                color = Color.Gray,
+                color = Color.White,
                 shape = RoundedCornerShape(10.dp)
             )
             .height(120.dp)

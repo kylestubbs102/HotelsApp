@@ -27,10 +27,12 @@ class HotelDetailsRepositoryImpl(
             return
         }
 
+        val hotelRow = hotelsDao.getHotelRowFromContentId(contentId)
+
         val request = GetHotelDetailsRequest(
             contentId = contentId,
-            checkIn = "2022-03-18",
-            checkOut = "2022-03-19",
+            checkIn = hotelRow.checkIn,
+            checkOut = hotelRow.checkOut,
             rooms = emptyList(),
         )
         val response = apiCalls.getHotelDetails(request)

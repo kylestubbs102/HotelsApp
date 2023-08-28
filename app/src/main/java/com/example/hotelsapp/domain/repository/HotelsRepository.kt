@@ -10,6 +10,7 @@ interface HotelsRepository {
     suspend fun searchHotels(query: String): Flow<Resource<List<LocationQueryRow>>>
     suspend fun getHotelsList(
         geoId: Int,
+        dates: Pair<String, String>,
         updateToken: String,
         isInitialFetch: Boolean
     ): Flow<Resource<List<HotelRow>>>

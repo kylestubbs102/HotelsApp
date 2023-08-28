@@ -8,6 +8,8 @@ import androidx.room.PrimaryKey
 data class HotelRowEntity(
     @PrimaryKey @ColumnInfo(name = "contentId") val contentId: Int,
     @ColumnInfo(name = "geoId") val geoId: Int,
+    @ColumnInfo(name = "checkIn") val checkIn: String,
+    @ColumnInfo(name = "checkOut") val checkOut: String,
     @ColumnInfo(name = "hotel") val hotel: String,
     @ColumnInfo(name = "latitude") val latitude: Double,
     @ColumnInfo(name = "longitude") val longitude: Double,
