@@ -9,8 +9,7 @@ HotelsApp is a modern Android application that helps users find hotels and explo
 - Search for hotels based on location.
 - View detailed information about each hotel.
 - Explore hotel locations on interactive maps.
-- [Add more features here]
-- 
+
 ### Technologies used
 
 - [Jetpack Compose](https://developer.android.com/jetpack/compose): A modern Android UI toolkit for building native UIs.
